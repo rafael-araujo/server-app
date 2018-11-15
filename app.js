@@ -10,7 +10,7 @@ var employeeRouter = require('./routes/employee');
 var session = require('express-session');
 
 var passport = require('passport');
-require('./authentication');
+require('./passport');
 
 var app = express();
 

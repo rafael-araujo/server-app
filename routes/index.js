@@ -24,8 +24,11 @@ router.get('/', (req, res, next)=> {
 });
 
 router.get('/home', (req, res, next)=> {
-  if (!req.isAuthenticated()) {
-    return res.redirect('/')
+  if (req.isAuthenticated()) {
+    return res.send({ result: 'ok'});
+  }
+  else {
+    res.redirect('/');
   }
 });
 
