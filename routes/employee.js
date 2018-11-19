@@ -1,12 +1,23 @@
-var express = require('express');
-var router = express.Router();
-var db = require('../db');
+const express = require('express');
+const bcrypt = require('bcrypt');
+const router = express.Router();
 
-/* GET employee listing. */
+const db = require('../db');
+const authMiddleware = require('../middleware/auth');
+
+router.use(authMiddleware);
+
+
+router.use( function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  next();
+});
+
 router.get('/', function(req, res, next) {
-  db('Employee').then((data) => {
-    res.send(data);
-  }, next)
+    db('Employee').then((data) => {
+      res.send(data);
+    }, next)
 });
 
 router.get('/:id', function(req, res, next) {
@@ -20,6 +31,9 @@ router.get('/:id', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
+  const hash = bcrypt.hashSync(req.body.password, 10);
+  req.body.password = hash;
+
   db('Employee')
   .insert(req.body)
   .then((data) => {
@@ -28,16 +42,14 @@ router.post('/', function(req, res, next) {
 });
 
 router.put('/:id', function(req, res, next) {
-  const {id} = req.params;
+  const hash = bcrypt.hashSync(req.body.password, 10);
+  req.body.password = hash;
 
   db('Employee')
   .where("idEmployee", id)
   .update(req.body)
   .then((data) => {
-    if (data === 0) {
-      return res.send(400);
-    }
-    res.send({result: 'alterou'});
+    res.send(data);
   }, next)
 });
 
@@ -48,10 +60,7 @@ router.delete('/:id', function(req, res, next) {
   .where("idEmployee", id)
   .delete()
   .then((data) => {
-    if (data === 0) {
-      return res.send(400);
-    }
-    res.send({result: 'deletou'});
+    res.send(data);
   }, next)
 });
 
